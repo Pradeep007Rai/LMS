@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+                            http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+                            http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+                   
+    <context:annotation-config />
+	<context:component-scan base-package="com.cg.lms.controller" />
+	<context:component-scan base-package="com.cg.lms.services" />   
+    <context:component-scan base-package="com.cg.lms..dao" /> 
+    <context:component-scan base-package="com.cg.lms.dto" /> 
+          
+     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+     
+    <!-- This bean will hold references to our database -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
+		<property name="username" value="system" />
+		<property name="password" value="root" />
+	</bean>
+	
+	<!-- Spring way of entity manager factory configuration -->
+	
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+          <property name="dataSource" ref="dataSource"/>
+          <property name="packagesToScan" value="com.cg.lms"/>
+          <property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider"/>
+          <property name="jpaPropertyMap">
+              <map>
+                  <entry key="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
+               	  <entry key="hibernate.hbm2ddl.auto" value="update"/>
+              </map>
+          </property>
+      </bean>
+      
+	<!-- This bean will handle all transaction within an application -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+	
+	<!-- This is required to handle transactions via Annotations like @Transactional -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	   <mvc:cors>
+	<mvc:mapping path="/**"
+		allowed-origins="*"
+		allowed-methods="POST, GET, PUT, OPTIONS, DELETE"
+			allowed-headers="Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization"
+			exposed-headers="Origin,Access-Control-Request-Method,Access-Control-Allow-Origin,Access-Control-Allow-Credentials"
+		allow-credentials="false"
+		max-age="4800" />
+        </mvc:cors>
+                       
+</beans>
